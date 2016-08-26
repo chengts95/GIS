@@ -31,8 +31,8 @@ RUN buildDeps='xz-utils' \
     && apt-get purge -y --auto-remove $buildDeps
     
     
-RUN git clone https://github.com/chengts95/GIS.git /opt/server/
+RUN git clone https://github.com/chengts95/GIS.git /opt/server/GIS
 WORKDIR /opt/server/GIS/
-RUN npm install && ls
+RUN npm install
 EXPOSE 3000
 CMD ["node", "app.js"]
