@@ -33,6 +33,6 @@ RUN buildDeps='xz-utils' \
     
 RUN git clone https://github.com/chengts95/GIS.git /opt/server/
 WORKDIR /opt/server/GIS/
-RUN npm install
+RUN npm install && ls
 EXPOSE 3000
 CMD ["node", "app.js"]
