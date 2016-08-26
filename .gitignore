@@ -28,7 +28,9 @@ $RECYCLE.BIN/
 .AppleDouble
 .LSOverride
 
-# Thumbnails
+/node_modules/
+node_modules/*/*
+# Thumbnails\
 ._*
 
 # Files that might appear in the root of a volume
