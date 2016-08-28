@@ -2,7 +2,11 @@ var express = require('express');
 var router = express.Router();
 
 
+
+
+
 router.get('/1', function(req, res, next) {
+
 
   res.render('map');
 });
