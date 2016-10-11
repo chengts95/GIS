@@ -8,7 +8,7 @@
     <!-- Load Esri Leaflet locally, after cloning this repository -->
      <script src="/static/js/jquery.js" type="text/javascript"></script>
     <script src="/static/lib/js/esri-leaflet.js"></script>
-
+    <script src="/static/lib/js/leaflet-heat.js"></script>
     <style>
       html, body, #map {
         margin:0; padding:0;  width : 100%; height : 100%;
@@ -18,59 +18,54 @@
   <body>
     <div id="map"></div>
     <script>
-    var map = L.map('map').setView([45.528, -122.680], 13);
+    var map = L.map('map').setView([32.34, 120.18], 13);
+    var icons = {
+       "marker-icon": L.icon({
+         iconUrl: 'https://esri.github.io/esri-leaflet/img/bus-stop-north.png',
+         iconRetinaUrl: 'https://esri.github.io/esri-leaflet/img/bus-stop-north@2x.png',
+         iconSize: [27, 31],
+         iconAnchor: [13.5, 17.5],
+         popupAnchor: [0, -11],
+       })
+     };
 
 
     L.esri.basemapLayer("Gray").addTo(map);
-
+    console.log(L.getBounds();)
     var parks = L.esri.featureLayer({
-      url: "https://services.arcgis.com/rOo16HdIMeOBI4Mb/arcgis/rest/services/Portland_Parks/FeatureServer/0",
+      url: "http://223.3.57.50:6080/arcgis/rest/services/MyMapService/MapServer/12",
+      pointToLayer: function (geojson, latlng) {
+      return L.marker(latlng, {
+        icon: icons["marker-icon"]
+      })
+    },
+      style: function () {
+        return { color: "#70ca49", weight: 2 };
+      }
+    }).addTo(map);
+    var area = L.esri.featureLayer({
+      url: "http://223.3.57.50:6080/arcgis/rest/services/MyMapService/MapServer/36"
+
+    ,
       style: function () {
         return { color: "#70ca49", weight: 2 };
       }
     }).addTo(map);
 
-    var popupTemplate = "<h3>{NAME}</h3>{ACRES} Acres<br><small>Property ID: {PROPERTYID}<small>";
+    var road = L.esri.featureLayer({
+      url: "http://223.3.57.50:6080/arcgis/rest/services/MyMapService/MapServer/41"
+
+    ,
+      style: function () {
+        return { color: "#000000", weight: 1 };
+      }
+    }).addTo(map);
+    var popupTemplate = "<h3>{TEXTLABEL}</h3>";
 
     parks.bindPopup(function(e){
+        console.log(e.feature.properties)
       return L.Util.template(popupTemplate, e.feature.properties)
-    });
-    var wellmaxzoom = 11;
-    var geojsonLayerWells = new L.GeoJSON();
 
-    function loadGeoJson(data) {
-        console.log(data);
-        geojsonLayerWells.addData(data);
-        map.addLayer(geojsonLayerWells);
-    };
-
-    map.on('moveend', function(){
-     if(map.getZoom() > wellmaxzoom){
-        var geoJsonUrl ='http://115.159.93.53:8080/geoserver/tiger/ows';
-        var defaultParameters = {
-            service: 'WFS',
-            version: '1.1.0',
-            request: 'GetFeature',
-            typeName: 'tiger:poly_landmarks',
-            maxFeatures: 3000,
-            outputFormat: 'application/json'
-            };
-
-        var customParams = {
-            bbox: map.getBounds().toBBoxString(),
-           };
-        var parameters = L.Util.extend(defaultParameters, customParams);
-        console.log(geoJsonUrl + L.Util.getParamString(parameters));
-
-        $.ajax({
-            url: geoJsonUrl + L.Util.getParamString(parameters),
-            datatype: 'json',
-            jsonCallback: 'getJson',
-            success: loadGeoJson
-            });
-        }else{
-        map.removeLayer(geojsonLayerWells);
-        };
     });
 
 
