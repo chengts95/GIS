@@ -18,7 +18,12 @@
   <body>
     <div id="map"></div>
     <script>
-    var map = L.map('map').setView([32.34, 120.18], 13);
+    var map = L.map('map').setView([32.61162, 120.03387], 9.1);
+    map.options.minZoom=9;
+    map.options.maxZoom=15;
+southWest=L.latLng(31.879889952523502,119.47082519531251)
+northEast=L.latLng(33.342001541915614, 120.61889648437501)
+     map.setMaxBounds(L.latLngBounds(southWest, northEast));
     var icons = {
        "marker-icon": L.icon({
          iconUrl: 'https://esri.github.io/esri-leaflet/img/bus-stop-north.png',
@@ -31,13 +36,14 @@
 
 
     L.esri.basemapLayer("Gray").addTo(map);
-    console.log(L.getBounds();)
+
     var parks = L.esri.featureLayer({
       url: "http://223.3.57.50:6080/arcgis/rest/services/MyMapService/MapServer/12",
       pointToLayer: function (geojson, latlng) {
-      return L.marker(latlng, {
-        icon: icons["marker-icon"]
-      })
+      return L.marker(latlng//, {
+      //  icon: icons["marker-icon"]
+      //})
+      )
     },
       style: function () {
         return { color: "#70ca49", weight: 2 };
@@ -50,7 +56,7 @@
       style: function () {
         return { color: "#70ca49", weight: 2 };
       }
-    }).addTo(map);
+    });
 
     var road = L.esri.featureLayer({
       url: "http://223.3.57.50:6080/arcgis/rest/services/MyMapService/MapServer/41"
@@ -60,6 +66,14 @@
         return { color: "#000000", weight: 1 };
       }
     }).addTo(map);
+
+    var heat = L.heatLayer([
+    [32.61162, 120.03387, 0.8], // lat, lng, intensity
+    [33.01161, 120.03387, 1],
+    [33.01164, 120.03387, 1],
+
+], {radius: 105}).addTo(map);
+
     var popupTemplate = "<h3>{TEXTLABEL}</h3>";
 
     parks.bindPopup(function(e){
@@ -67,8 +81,9 @@
       return L.Util.template(popupTemplate, e.feature.properties)
 
     });
-
-
+    map.on('click', function(e) {
+        console.log(e.latlng);
+    });
 
 
     </script>
