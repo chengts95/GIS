@@ -21,29 +21,18 @@
     var map = L.map('map').setView([32.61162, 120.03387], 9.1);
     map.options.minZoom=9;
     map.options.maxZoom=15;
-southWest=L.latLng(31.879889952523502,119.47082519531251)
-northEast=L.latLng(33.342001541915614, 120.61889648437501)
-     map.setMaxBounds(L.latLngBounds(southWest, northEast));
-    var icons = {
-       "marker-icon": L.icon({
-         iconUrl: 'https://esri.github.io/esri-leaflet/img/bus-stop-north.png',
-         iconRetinaUrl: 'https://esri.github.io/esri-leaflet/img/bus-stop-north@2x.png',
-         iconSize: [27, 31],
-         iconAnchor: [13.5, 17.5],
-         popupAnchor: [0, -11],
-       })
-     };
+    southWest=L.latLng(31.879889952523502,119.47082519531251)
+    northEast=L.latLng(33.342001541915614, 120.61889648437501)
+    map.setMaxBounds(L.latLngBounds(southWest, northEast));
 
 
-    L.esri.basemapLayer("Gray").addTo(map);
+    L.esri.basemapLayer("Streets").addTo(map);
 
     var parks = L.esri.featureLayer({
       url: "http://223.3.57.50:6080/arcgis/rest/services/MyMapService/MapServer/12",
       pointToLayer: function (geojson, latlng) {
-      return L.marker(latlng//, {
-      //  icon: icons["marker-icon"]
-      //})
-      )
+      return L.marker(latlng
+    )
     },
       style: function () {
         return { color: "#70ca49", weight: 2 };
@@ -63,7 +52,7 @@ northEast=L.latLng(33.342001541915614, 120.61889648437501)
 
     ,
       style: function () {
-        return { color: "#000000", weight: 1 };
+        return { color: "#000000", weight: 0.1};
       }
     }).addTo(map);
 
@@ -71,19 +60,44 @@ northEast=L.latLng(33.342001541915614, 120.61889648437501)
     [32.61162, 120.03387, 0.8], // lat, lng, intensity
     [33.01161, 120.03387, 1],
     [33.01164, 120.03387, 1],
+    [33.01164, 120.03387, 1],
+    [33.01164, 120.03387, 1],
+    [33.01164, 120.03387, 1],
+    [33.01164, 120.03387, 1],
+    [33.01164, 120.03387, 1],
+    [33.01224, 120.03387, 1],
+    [33.03134, 120.03387, 1],
+    [33.01164, 120.03387, 1],
+    [33.01134, 120.03387, 1],
+    [33.04164, 120.03387, 1],
+    [33.01164, 120.03387, 1],
+    [33.02144, 120.03387, 1],
+    [33.01154, 120.03387, 1],
+    [33.01164, 120.03387, 1],
+    [33.01564, 120.03387, 1],
 
-], {radius: 105}).addTo(map);
+], {radius: 25,
+    gradient: {
+      0.2: '#ffffb2',
+      0.4: '#fd8d3c',
+      0.6: '#fd8d3c',
+      0.8: '#f03b20',
+      1: '#bd0026'
+    }}).addTo(map);
 
     var popupTemplate = "<h3>{TEXTLABEL}</h3>";
 
     parks.bindPopup(function(e){
-        console.log(e.feature.properties)
+      console.log(e.feature.properties)
       return L.Util.template(popupTemplate, e.feature.properties)
 
     });
-    map.on('click', function(e) {
-        console.log(e.latlng);
+    heat.bindPopup(function(e){
+      console.log(e)
+
+
     });
+
 
 
     </script>
