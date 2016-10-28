@@ -18,6 +18,7 @@
   <body>
     <div id="map"></div>
     <script>
+    var host="223.3.55.186";
     var map = L.map('map').setView([32.61162, 120.03387], 9.1);
     map.options.minZoom=9;
     map.options.maxZoom=15;
@@ -29,7 +30,7 @@
     L.esri.basemapLayer("Streets").addTo(map);
 
     var parks = L.esri.featureLayer({
-      url: "http://223.3.57.50:6080/arcgis/rest/services/MyMapService/MapServer/12",
+      url: "http://"+host+":6080/arcgis/rest/services/MyMapService/MapServer/12",
       pointToLayer: function (geojson, latlng) {
       return L.marker(latlng
     )
@@ -38,63 +39,36 @@
         return { color: "#70ca49", weight: 2 };
       }
     }).addTo(map);
-    var area = L.esri.featureLayer({
-      url: "http://223.3.57.50:6080/arcgis/rest/services/MyMapService/MapServer/36"
 
-    ,
-      style: function () {
-        return { color: "#70ca49", weight: 2 };
-      }
-    });
 
-    var road = L.esri.featureLayer({
-      url: "http://223.3.57.50:6080/arcgis/rest/services/MyMapService/MapServer/41"
 
-    ,
-      style: function () {
-        return { color: "#000000", weight: 0.1};
-      }
-    }).addTo(map);
+  var heatdata=[];
+    $.getJSON("http://localhost:3000/api/map1", {
 
-    var heat = L.heatLayer([
-    [32.61162, 120.03387, 0.8], // lat, lng, intensity
-    [33.01161, 120.03387, 1],
-    [33.01164, 120.03387, 1],
-    [33.01164, 120.03387, 1],
-    [33.01164, 120.03387, 1],
-    [33.01164, 120.03387, 1],
-    [33.01164, 120.03387, 1],
-    [33.01164, 120.03387, 1],
-    [33.01224, 120.03387, 1],
-    [33.03134, 120.03387, 1],
-    [33.01164, 120.03387, 1],
-    [33.01134, 120.03387, 1],
-    [33.04164, 120.03387, 1],
-    [33.01164, 120.03387, 1],
-    [33.02144, 120.03387, 1],
-    [33.01154, 120.03387, 1],
-    [33.01164, 120.03387, 1],
-    [33.01564, 120.03387, 1],
+    }, function(json) {
+         //data为返回对象，status为请求的状态
+         console.log(json);
+         var heat=L.heatLayer(
+          json
 
-], {radius: 25,
-    gradient: {
-      0.2: '#ffffb2',
-      0.4: '#fd8d3c',
-      0.6: '#fd8d3c',
-      0.8: '#f03b20',
-      1: '#bd0026'
-    }}).addTo(map);
+          , {radius: 15,
+            gradient: {
+              0.2: '#33ff66',
+              0.3: '#3399cc',
+              0.6: '#ffff66',
+              0.8: '#ff9900',
+              1: '#ff3300'
+            }}).addTo(map);
+
+        });
+
+
 
     var popupTemplate = "<h3>{TEXTLABEL}</h3>";
 
     parks.bindPopup(function(e){
       console.log(e.feature.properties)
       return L.Util.template(popupTemplate, e.feature.properties)
-
-    });
-    heat.bindPopup(function(e){
-      console.log(e)
-
 
     });
 
