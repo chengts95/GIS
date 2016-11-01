@@ -6,7 +6,7 @@ var router = express.Router();
 // and client options
 // note: all config is optional and the environment variables
 // will be read if the config is not present
-hostname='223.3.55.186'
+hostname=document.location.hostname
 var config = {
   user: 'gis', //env var: PGUSER
   database: 'data', //env var: PGDATABASE
@@ -50,7 +50,7 @@ router.get('/map1', function(req, res, next) {
 
 
 
-  pool.query('SELECT name, lng, lat, load from trans_data', function(err, result) {
+  pool.query('SELECT  lng, lat, load from trans_data', function(err, result) {
       // handle an error from the query
       if(err) return onError(err);
       array=result['rows'];
