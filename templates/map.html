@@ -18,7 +18,7 @@
   <body>
     <div id="map"></div>
     <script>
-    var host="223.3.55.186";
+    var host='223.3.60.170';
     var map = L.map('map').setView([32.61162, 120.03387], 9.1);
     map.options.minZoom=9;
     map.options.maxZoom=15;
@@ -27,7 +27,12 @@
     map.setMaxBounds(L.latLngBounds(southWest, northEast));
 
 
-    L.esri.basemapLayer("Streets").addTo(map);
+  L.tileLayer('http://www.arcgisonline.cn/ArcGIS/rest/services/ChinaOnlineStreetCold/MapServer/tile/{z}/{y}/{x}',{
+                 maxZoom: 18,
+                 reuseTiles: true
+       }).addTo(map);
+  //add base layer to map
+
 
     var parks = L.esri.featureLayer({
       url: "http://"+host+":6080/arcgis/rest/services/MyMapService/MapServer/12",
