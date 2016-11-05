@@ -18,7 +18,8 @@
   <body>
     <div id="map"></div>
     <script>
-    var host='223.3.60.170';
+    var host=document.location.hostname;
+    var gishost='223.3.60.170';
     var map = L.map('map').setView([32.61162, 120.03387], 9.1);
     map.options.minZoom=9;
     map.options.maxZoom=15;
@@ -33,12 +34,15 @@
        }).addTo(map);
   //add base layer to map
 
+  var transicon = L.icon({iconUrl:"http://"+host+":3000/static/img/ee/trans.png",iconSize:[10,10]});
+
+
 
     var parks = L.esri.featureLayer({
-      url: "http://"+host+":6080/arcgis/rest/services/MyMapService/MapServer/12",
+      url: "http://"+gishost+":6080/arcgis/rest/services/MyMapService/MapServer/12",
       pointToLayer: function (geojson, latlng) {
-      return L.marker(latlng
-    )
+        console.log(geojson);
+      return L.marker(latlng)
     },
       style: function () {
         return { color: "#70ca49", weight: 2 };
@@ -46,13 +50,11 @@
     }).addTo(map);
 
 
-
-  var heatdata=[];
-    $.getJSON("http://localhost:3000/api/map1", {
+    $.getJSON("http://"+host+":3000/api/map1/heat", {
 
     }, function(json) {
          //data为返回对象，status为请求的状态
-         console.log(json);
+         //console.log(json);
          var heat=L.heatLayer(
           json
 
@@ -67,6 +69,23 @@
 
         });
 
+        $.getJSON("http://"+host+":3000/api/map1/trans", {
+
+        }, function(json) {
+             //data为返回对象，status为请求的状态
+
+          var  h= L.geoJSON(json, {
+               pointToLayer: function (geojson, latlng) {
+
+               return L.marker(latlng,{icon:transicon,opacity: 0.9});
+             },
+               style: function () {
+                 return { color: "#70ca49", weight: 2 };
+               }
+             }).addTo(map);
+          
+
+            });
 
 
     var popupTemplate = "<h3>{TEXTLABEL}</h3>";
