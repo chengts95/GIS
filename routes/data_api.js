@@ -6,7 +6,7 @@ var router = express.Router();
 // and client options
 // note: all config is optional and the environment variables
 // will be read if the config is not present
-hostname='223.3.55.186'
+hostname='223.3.60.170'
 var config = {
   user: 'gis', //env var: PGUSER
   database: 'data', //env var: PGDATABASE
@@ -46,11 +46,11 @@ pool.on('error', function (err, client) {
 })
 
 
-router.get('/map1', function(req, res, next) {
+router.get('/map1/heat', function(req, res, next) {
 
 
 
-  pool.query('SELECT name, lng, lat, load from trans_data', function(err, result) {
+  pool.query('SELECT lng, lat, load from trans_data', function(err, result) {
       // handle an error from the query
       if(err) return onError(err);
       array=result['rows'];
@@ -78,4 +78,56 @@ router.get('/map1', function(req, res, next) {
 
     }
 );
+
+
+
+
+
+router.get('/map1/trans', function(req, res, next) {
+
+
+
+  pool.query('SELECT name,lng, lat, load from trans_data', function(err, result) {
+      // handle an error from the query
+      if(err) return onError(err);
+      array=result['rows'];
+      var temp=new Object();
+
+      temp.type='FeatureCollection';
+      temp.features=[];
+
+
+      var i = array.length;
+      while (i--){
+        /*if (!array[i]['lat'])
+          {
+              array[i]['lat']=0;
+          }
+          if (!array[i]['lng'])
+            {
+                array[i]['lng']=0;
+            }*/
+            if (array[i]['lat'] && array[i]['lng'])
+              {
+
+
+                    temp.features.push(
+                      { "type": "Feature","geometry":
+                        {"type": "Point", "coordinates": [array[i]['lng'], array[i]['lat']]},
+                        "properties": {"name": array[i]['name'],'load':array[i]['load']}
+                      }
+                   );
+              }
+          //temp[i]=[array[i]['lat'],array[i]['lng'],array[i]['load']]
+      }
+
+
+
+
+        res.json(temp);
+      })
+
+    }
+);
+
 module.exports = router;
