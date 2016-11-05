@@ -34,9 +34,15 @@
        }).addTo(map);
   //add base layer to map
 
-  var transicon = L.icon({iconUrl:"http://"+host+":3000/static/img/ee/trans.png",iconSize:[10,10]});
-
-
+  var divide = L.esri.featureLayer({
+          url: "http://"+gishost+":6080/arcgis/rest/services/MyMapService/MapServer/36",
+  		style: function () {
+            return  {  weight:1,fillColor:"#FFFFF0",color:"#32CD32",dashArray:'3',opacity: 1};
+          }
+        }).addTo(map);
+  var transicon_b = L.icon({iconUrl:"http://"+host+":3000/static/img/ee/transb.png",iconSize:[20,20]});
+  var transicon_g = L.icon({iconUrl:"http://"+host+":3000/static/img/ee/transg.png",iconSize:[20,20]});
+  var transicon_r = L.icon({iconUrl:"http://"+host+":3000/static/img/ee/transr.png",iconSize:[18,18]});
 
     var parks = L.esri.featureLayer({
       url: "http://"+gishost+":6080/arcgis/rest/services/MyMapService/MapServer/12",
@@ -76,18 +82,33 @@
 
           var  h= L.geoJSON(json, {
                pointToLayer: function (geojson, latlng) {
+                    var mark=new Object();
+                    if(geojson['properties']['load']>0.8){
 
-               return L.marker(latlng,{icon:transicon,opacity: 0.9});
+                             mark = L.marker(latlng,{icon:transicon_r,opacity: 0.9});
+
+                    }else if(geojson['properties']['load']>0.4){
+
+                            mark = L.marker(latlng,{icon:transicon_g,opacity: 0.9});
+
+                   }else{
+
+                            mark = L.marker(latlng,{icon:transicon_b,opacity: 0.9});
+
+                   }
+                   mark.bindTooltip(geojson['properties']['name']+":"+parseInt(geojson['properties']['load']*100)+"%",{noHide:true});
+                   return mark;
+
              },
                style: function () {
                  return { color: "#70ca49", weight: 2 };
                }
              }).addTo(map);
-          
+
 
             });
 
-
+L.control.scale().addTo(map);//add scale
     var popupTemplate = "<h3>{TEXTLABEL}</h3>";
 
     parks.bindPopup(function(e){
