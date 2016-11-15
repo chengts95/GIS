@@ -18,7 +18,8 @@
   <body>
     <div id="map"></div>
     <script>
-    var host="223.3.55.186";
+    var host=document.location.hostname;
+    var gishost='223.3.60.170';
     var map = L.map('map').setView([32.61162, 120.03387], 9.1);
     map.options.minZoom=9;
     map.options.maxZoom=15;
@@ -27,13 +28,27 @@
     map.setMaxBounds(L.latLngBounds(southWest, northEast));
 
 
-    L.esri.basemapLayer("Streets").addTo(map);
+  L.tileLayer('http://www.arcgisonline.cn/ArcGIS/rest/services/ChinaOnlineStreetCold/MapServer/tile/{z}/{y}/{x}',{
+                 maxZoom: 18,
+                 reuseTiles: true
+       }).addTo(map);
+  //add base layer to map
+
+  var divide = L.esri.featureLayer({
+          url: "http://"+gishost+":6080/arcgis/rest/services/MyMapService/MapServer/36",
+  		style: function () {
+            return  {  weight:1,fillColor:"#FFFFF0",color:"#32CD32",dashArray:'3',opacity: 1};
+          }
+        }).addTo(map);
+  var transicon_b = L.icon({iconUrl:"http://"+host+":3000/static/img/ee/transb.png",iconSize:[20,20]});
+  var transicon_g = L.icon({iconUrl:"http://"+host+":3000/static/img/ee/transg.png",iconSize:[20,20]});
+  var transicon_r = L.icon({iconUrl:"http://"+host+":3000/static/img/ee/transr.png",iconSize:[18,18]});
 
     var parks = L.esri.featureLayer({
-      url: "http://"+host+":6080/arcgis/rest/services/MyMapService/MapServer/12",
+      url: "http://"+gishost+":6080/arcgis/rest/services/MyMapService/MapServer/12",
       pointToLayer: function (geojson, latlng) {
-      return L.marker(latlng
-    )
+        console.log(geojson);
+      return L.marker(latlng)
     },
       style: function () {
         return { color: "#70ca49", weight: 2 };
@@ -41,13 +56,11 @@
     }).addTo(map);
 
 
-
-  var heatdata=[];
-    $.getJSON("http://localhost:3000/api/map1", {
+    $.getJSON("http://"+host+":3000/api/map1/heat", {
 
     }, function(json) {
          //data为返回对象，status为请求的状态
-         console.log(json);
+         //console.log(json);
          var heat=L.heatLayer(
           json
 
@@ -62,8 +75,40 @@
 
         });
 
+        $.getJSON("http://"+host+":3000/api/map1/trans", {
+
+        }, function(json) {
+             //data为返回对象，status为请求的状态
+
+          var  h= L.geoJSON(json, {
+               pointToLayer: function (geojson, latlng) {
+                    var mark=new Object();
+                    if(geojson['properties']['load']>0.8){
+
+                             mark = L.marker(latlng,{icon:transicon_r,opacity: 0.9});
+
+                    }else if(geojson['properties']['load']>0.4){
+
+                            mark = L.marker(latlng,{icon:transicon_g,opacity: 0.9});
+
+                   }else{
+
+                            mark = L.marker(latlng,{icon:transicon_b,opacity: 0.9});
+
+                   }
+                   mark.bindTooltip(geojson['properties']['name']+":"+parseInt(geojson['properties']['load']*100)+"%",{noHide:true});
+                   return mark;
+
+             },
+               style: function () {
+                 return { color: "#70ca49", weight: 2 };
+               }
+             }).addTo(map);
 
 
+            });
+
+L.control.scale().addTo(map);//add scale
     var popupTemplate = "<h3>{TEXTLABEL}</h3>";
 
     parks.bindPopup(function(e){
